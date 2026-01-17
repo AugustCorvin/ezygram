@@ -1,11 +1,13 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ['setuptools', 'wheel']
+build-backend = 'setuptools.build_meta'
 
 [project]
-name = "easygram"
-version = "0.2"
-description = "Test"
-readme = "README.md"
-requires-python = ">=3.8"
-dependencies = ["requests"]
+name = 'easygram'
+version = '0.2'
+description = 'Super simple Telegram Bot API'
+requires-python = '>=3.8'
+readme = 'README.md'
+license = {text = 'MIT'}
+dependencies = ['requests']
+author = [{name = 'August Corvin'}]
