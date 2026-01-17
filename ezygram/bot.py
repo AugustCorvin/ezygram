@@ -1,61 +1,51 @@
-# bot.py
-# Главная логика
+from .api import TelegramAPI   # TelegramAPI
+import time                    # Управление задержкой
 
 
 
-# Импортируем TelegramAPI и time
-from .api import TelegramAPI
-import time
-
-# Создаем класс Message
 class Message:
     def __init__(self, update):
-        self.text = update['message'].get('text', '')
-        self.user_id = update['message']['chat']['id']
+        self.text = update['message'].get('text', '')   # Получаем текст сообщения
+        self.user_id = update['message']['chat']['id']  # получаем ID отправителя
 
-# Создаем класс бота
+
 class Bot:
-    # Инициализируем класс
+    # Инициализация
     def __init__(self, token: str):
-        # Сохраняем API, начинаем получать обновления с самого начала
-        self.api = TelegramAPI(token)
-        self.offset = 0
-        self._handlers = []   # Список функций-обработчиков
+        self.api = TelegramAPI(token)   # сохраняем API
+        self.offset = 0                 # начинаем получать обновления с самого начала
+        self._handlers = []             # список функций-обработчиков
 
     # Декоратор для регистрации обработчиков
     def new_message(self, func):
-        self._handlers.append(func)
-        return func
+        self._handlers.append(func)     # добавляем функцию
+        return func                     # возвращает функцию
 
     # Получение новых обновлений
     def get_updates(self):
         data = self.api.request('getUpdates', {'offset': self.offset + 1})
-
-        # Если не OK, возвращаем пустой список
-        if not data.get('ok'):
-            return []
+        if not data.get('ok'):          # Если вернулось не 'ok'
+            return []                   # возвращаем пустой список
 
         # Получаем обновления
         updates = data['result']
-        
-        # Обновляем offset
-        if updates:
+        if updates:                     # обновляем offset
             self.offset = updates[-1]['update_id']
-
-        # Возвращаем обновления
-        return updates
+        return updates                  # возвращаем обновления
 
     # Отправка сообщений
     def send_message(self, chat_id: int, text: str):
         return self.api.request('sendMessage', {'chat_id': chat_id, 'text': text})
 
     # Запуск бесконечного цикла
-    def run(self):
-        while True:
+    def start(self):
+        while True:                                 # вечно проверяем обновления
             updates = self.get_updates()
-            for update in updates:
-                if 'message' in update:
-                    message = Message(update)
-                    for handler in self._handlers:
-                        handler(message)
-            time.sleep(1)
+
+            for update in updates:                  # обрабатываем обновления
+
+                if 'message' in update:             # если это сообщение
+                    message = Message(update)       # создаем объект message
+                    for handler in self._handlers:  # перебираем все функции
+                        handler(message)            # вызываем функцию с объектом message
+            time.sleep(1)                           # Спим 1 секунду
